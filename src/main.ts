@@ -185,6 +185,7 @@ const returnButton = app.querySelector<HTMLButtonElement>(".decision-return");
 const resultReturnButton = app.querySelector<HTMLButtonElement>(".result-return");
 const questionTitle = app.querySelector<HTMLElement>(".question-title");
 const questionTitleCn = app.querySelector<HTMLElement>(".question-title-cn");
+const resultQuestionTitle = app.querySelector<HTMLElement>(".result-question-title");
 const loaderFill = app.querySelector<HTMLElement>(".computer-screen__loader-fill");
 const loaderProgress = app.querySelector<HTMLElement>(".computer-screen__loader-progress");
 const questionScreen = app.querySelector<HTMLElement>(".question-screen--question");
@@ -196,7 +197,7 @@ const resultSummaryCount = app.querySelector<HTMLElement>(".result-summary__coun
 const aiSigns = Array.from(app.querySelectorAll<HTMLElement>(".ai-sign"));
 const questionEyebrows = Array.from(app.querySelectorAll<HTMLElement>(".question-card__eyebrow"));
 
-if (!canvas || !showcaseTitleCanvas || !modelCanvas || !shell || !shellFrame || !enterButton || !landingCanvas || !landingOverlay || !modelPage || !screenShell || !questionCard || !timerValue || !returnButton || !resultReturnButton || !questionTitle || !questionTitleCn || !loaderFill || !loaderProgress || !questionScreen || !resultScreen || !resultChoiceBadge || !resultTimeBadge || !resultSummaryPercent || !resultSummaryCount || aiSigns.length === 0 || questionEyebrows.length === 0) {
+if (!canvas || !showcaseTitleCanvas || !modelCanvas || !shell || !shellFrame || !enterButton || !landingCanvas || !landingOverlay || !modelPage || !screenShell || !questionCard || !timerValue || !returnButton || !resultReturnButton || !questionTitle || !questionTitleCn || !resultQuestionTitle || !loaderFill || !loaderProgress || !questionScreen || !resultScreen || !resultChoiceBadge || !resultTimeBadge || !resultSummaryPercent || !resultSummaryCount || aiSigns.length === 0 || questionEyebrows.length === 0) {
   throw new Error("Required showcase elements are missing");
 }
 
@@ -214,6 +215,12 @@ type ResponseStats = {
   TRUE: number;
 };
 
+type PosterQuestion = {
+  chinese: string;
+  english: string;
+  title: string;
+};
+
 const posterTitles: Record<string, string> = {
   "01": "Moral Judgment",
   "02": "Temporal Discontinuity",
@@ -224,6 +231,54 @@ const posterTitles: Record<string, string> = {
   "07": "Emotional Conflict",
   "08": "Value System Conflict",
   "09": "Fear of Irreversibility",
+};
+
+const posterQuestions: Record<string, PosterQuestion> = {
+  "01": {
+    title: "Moral Judgment",
+    english: "For overall efficiency, algorithms may prioritize users considered more valuable.",
+    chinese: "为了整体效率，算法可以优先服务更有价值的用户。",
+  },
+  "02": {
+    title: "Temporal Discontinuity",
+    english: "If future consequences cannot be clearly imagined, one should not act immediately.",
+    chinese: "如果无法清楚想象未来后果，就不应该立刻行动。",
+  },
+  "03": {
+    title: "Capability Boundary",
+    english: "If AI can do it better, humans no longer need to insist on doing it themselves.",
+    chinese: "如果AI能完成得更好，人类就不需要再坚持亲自完成。",
+  },
+  "04": {
+    title: "Risk Assessment",
+    english: "When the chance of success is only 1%, continuing to invest is still worthwhile.",
+    chinese: "当成功率只剩1%时，继续投入仍然值得。",
+  },
+  "05": {
+    title: "Memory Interference",
+    english: "If a person has made mistakes in the past, algorithms should continue to lower trust in them in the future.",
+    chinese: "一个人过去犯过错，算法就应该在未来持续降低对他的信任。",
+  },
+  "06": {
+    title: "Social Gaze",
+    english: "A choice approved by the majority is usually safer than what an individual truly wants.",
+    chinese: "被大众认可的选择，通常比个人真正想要的选择更安全。",
+  },
+  "07": {
+    title: "Emotional Conflict",
+    english: "If AI understands you better than real friends, relying on AI companionship is acceptable.",
+    chinese: "如果AI比真实朋友更理解你，依赖AI陪伴是可以接受的。",
+  },
+  "08": {
+    title: "Value System Conflict",
+    english: "When fairness conflicts with efficiency, fairness should always come first.",
+    chinese: "当公平和效率冲突时，公平永远应该优先。",
+  },
+  "09": {
+    title: "Fear of Irreversibility",
+    english: "Once a choice may be irreversible, it should be abandoned.",
+    chinese: "一旦选择可能无法回头，就应该放弃这个选择。",
+  },
 };
 
 const responseStatsStorageKey = "bufferage-capability-boundary-stats";
@@ -239,6 +294,14 @@ const updateQuestionEyebrows = (posterId: string) => {
   questionEyebrows.forEach((eyebrow) => {
     eyebrow.textContent = title;
   });
+};
+
+const updateQuestionCopy = (posterId: string) => {
+  const question = posterQuestions[posterId] ?? posterQuestions["03"];
+  questionTitle.dataset.fullText = question.english;
+  questionTitleCn.dataset.fullText = question.chinese;
+  resultQuestionTitle.textContent = question.english;
+  updateQuestionEyebrows(posterId);
 };
 
 const readResponseStats = (): ResponseStats => {
@@ -352,7 +415,13 @@ const renderResult = (choice: Choice) => {
 const returnToBufferageHome = () => {
   stopTimer();
   typewriterToken += 1;
+  if (loaderFrame) {
+    window.cancelAnimationFrame(loaderFrame);
+    loaderFrame = 0;
+  }
   questionTitle.textContent = "";
+  questionTitle.classList.remove("question-title--typing");
+  questionTitleCn.textContent = questionTitleCn.dataset.fullText ?? "";
   questionTitleCn.classList.remove("question-title-cn--visible");
   questionScreen.setAttribute("aria-hidden", "false");
   resultScreen.setAttribute("aria-hidden", "true");
@@ -361,9 +430,12 @@ const returnToBufferageHome = () => {
     candidate.classList.remove("decision-button--selected");
   });
   renderTimer(0);
+  loaderFill.style.width = "0%";
+  loaderProgress.textContent = "0%";
   shell.classList.remove("shell--model-active");
   modelPage.classList.remove("model-page--booting", "model-page--app-visible");
   booted = false;
+  modelViewer.resetFocus();
 };
 
 const typeText = (
@@ -498,12 +570,14 @@ initPortfolioShowcase({
   canvas,
   onSelect: (posterId) => {
     selectedPosterId = posterId;
-    updateQuestionEyebrows(selectedPosterId);
+    updateQuestionCopy(selectedPosterId);
     shell.classList.add("shell--model-active");
   },
 });
 
-initModelViewer({
+updateQuestionCopy(selectedPosterId);
+
+const modelViewer = initModelViewer({
   canvas: modelCanvas,
   onFocusLocked: bootComputerScreen,
 });

@@ -401,27 +401,27 @@ function createPosterTexture(poster, onUpdate) {
             const frameRatio = 528 / imageHeight;
             let drawWidth = 528;
             let drawHeight = imageHeight;
-        if (sourceRatio > frameRatio) {
-            drawHeight = imageHeight * 0.9;
-            drawWidth = drawHeight * sourceRatio;
-        }
-        else {
-            drawWidth = 528 * (posterImageConfig?.scale ?? 0.72);
-            drawHeight = drawWidth / sourceRatio;
-        }
-        const drawX = 120 + (528 - drawWidth) / 2 + (posterImageConfig?.offsetX ?? 0);
-        const drawY = imageY + (imageHeight - drawHeight) / 2 + (posterImageConfig?.offsetY ?? 0);
-        const rotation = posterImageConfig?.rotation ?? 0;
-        if (rotation !== 0) {
-            context.save();
-            context.translate(drawX + drawWidth / 2, drawY + drawHeight / 2);
-            context.rotate(rotation);
-            context.drawImage(image, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
-            context.restore();
-        }
-        else {
-            context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-        }
+            if (sourceRatio > frameRatio) {
+                drawHeight = imageHeight * 0.9;
+                drawWidth = drawHeight * sourceRatio;
+            }
+            else {
+                drawWidth = 528 * (posterImageConfig?.scale ?? 0.72);
+                drawHeight = drawWidth / sourceRatio;
+            }
+            const drawX = 120 + (528 - drawWidth) / 2 + (posterImageConfig?.offsetX ?? 0);
+            const drawY = imageY + (imageHeight - drawHeight) / 2 + (posterImageConfig?.offsetY ?? 0);
+            const rotation = posterImageConfig?.rotation ?? 0;
+            if (rotation !== 0) {
+                context.save();
+                context.translate(drawX + drawWidth / 2, drawY + drawHeight / 2);
+                context.rotate(rotation);
+                context.drawImage(image, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+                context.restore();
+            }
+            else {
+                context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+            }
             context.fillStyle = imageGlow;
             context.fillRect(120, imageY, 528, imageHeight);
             onUpdate?.();

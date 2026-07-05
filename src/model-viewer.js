@@ -201,13 +201,26 @@ export function initModelViewer({ canvas, onFocusLocked }) {
         }
         renderer.render(scene, camera);
     });
-    return () => {
-        renderer.setAnimationLoop(null);
-        canvas.removeEventListener("pointerdown", handlePointerDown);
-        canvas.removeEventListener("pointermove", handlePointerMove);
-        canvas.removeEventListener("pointerup", handlePointerUp);
-        canvas.removeEventListener("pointerleave", handlePointerLeave);
-        window.removeEventListener("resize", resize);
-        renderer.dispose();
+    return {
+        resetFocus: () => {
+            state.targetFocus = 0;
+            state.focusLocked = false;
+            state.isDragging = false;
+            state.isHovering = false;
+            state.pointerDownMoved = false;
+            state.velocityX = 0;
+            state.velocityY = 0.0026;
+            pointer.set(2, 2);
+            canvas.style.cursor = "default";
+        },
+        destroy: () => {
+            renderer.setAnimationLoop(null);
+            canvas.removeEventListener("pointerdown", handlePointerDown);
+            canvas.removeEventListener("pointermove", handlePointerMove);
+            canvas.removeEventListener("pointerup", handlePointerUp);
+            canvas.removeEventListener("pointerleave", handlePointerLeave);
+            window.removeEventListener("resize", resize);
+            renderer.dispose();
+        },
     };
 }
