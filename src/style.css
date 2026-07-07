@@ -291,6 +291,12 @@ body::before {
 .nav-copy--center {
   text-align: center;
   align-items: center;
+  max-width: none;
+  min-width: 420px;
+}
+
+.nav-copy--center span:last-child {
+  white-space: nowrap;
 }
 
 .stage {

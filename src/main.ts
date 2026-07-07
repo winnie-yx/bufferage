@@ -16,7 +16,7 @@ app.innerHTML = `
     <canvas class="landing-canvas" aria-hidden="true"></canvas>
     <div class="landing-content">
       <div class="landing-kicker">Experimental Portfolio</div>
-      <h1 class="landing-title">Bufferage</h1>
+      <h1 class="landing-title">Hyperhesitation</h1>
       <div class="landing-body">
         <p class="landing-copy landing-copy--en">${landingCopy.english}</p>
       </div>
@@ -36,7 +36,7 @@ app.innerHTML = `
           <h1>Choose Your Hesitation Question</h1>
         </div>
         <div class="meta meta--right meta--statement">
-          <p>Bufferage explores hesitation as a uniquely human form of judgment. Enter to navigate nine dimensions where machine certainty meets human pause.</p>
+          <p>Hyperhesitation explores hesitation as a uniquely human form of judgment. Enter to navigate nine dimensions where machine certainty meets human pause.</p>
         </div>
       </header>
 
@@ -49,15 +49,15 @@ app.innerHTML = `
 
       <footer class="hud hud-bottom">
         <div class="nav-copy">
-          <span>Xiaohongshu</span>
-          <span>Github</span>
+          <span>Hyper</span>
+          <span>Hesitation</span>
         </div>
         <div class="nav-copy nav-copy--center">
           <span>Built By</span>
-          <span>Bufferage Studio</span>
+          <span>Xu Bingyu,Yao Jingrui,Wang yuxin</span>
         </div>
         <div class="nav-copy nav-copy--right">
-          <span>© Bufferage</span>
+          <span>© 2026 playshop</span>
         </div>
       </footer>
 

@@ -1,5 +1,5 @@
 import gsap from "gsap";
-const title = "Bufferage";
+const titleLines = ["Hyper", "hesitation"];
 export function initLandingExperience({ canvas, enterButton, overlay, shellFrame, }) {
     const context = canvas.getContext("2d");
     if (!context) {
@@ -132,39 +132,50 @@ function createTitleParticles(viewportWidth, viewportHeight) {
     }
     sampleCanvas.width = viewportWidth;
     sampleCanvas.height = viewportHeight;
-    const fontSize = Math.min(viewportWidth * 0.245, 330);
+    const fontSize = Math.min(viewportWidth * 0.17, 220);
+    const lineHeight = fontSize * 0.84;
     sampleContext.clearRect(0, 0, viewportWidth, viewportHeight);
     sampleContext.fillStyle = "#ffffff";
     sampleContext.textAlign = "center";
     sampleContext.textBaseline = "middle";
     sampleContext.font = `600 ${fontSize}px "Bodoni 72", "Didot", serif`;
     const centerX = viewportWidth * 0.5;
-    const centerY = viewportHeight * 0.42;
-    sampleContext.fillText(title, centerX, centerY);
-    const metrics = sampleContext.measureText(title);
+    const centerY = viewportHeight * 0.435;
+    const lineYs = [centerY - lineHeight * 0.5, centerY + lineHeight * 0.5];
+    const lineMetrics = titleLines.map((line) => sampleContext.measureText(line));
+    titleLines.forEach((line, index) => {
+        sampleContext.fillText(line, centerX, lineYs[index]);
+    });
+    const maxLineWidth = Math.max(...lineMetrics.map((metrics) => metrics.width));
     const bounds = {
-        bottom: centerY + fontSize * 0.22,
-        left: centerX - metrics.width * 0.5,
-        right: centerX + metrics.width * 0.5,
-        top: centerY - fontSize * 0.58,
+        bottom: lineYs[1] + fontSize * 0.32,
+        left: centerX - maxLineWidth * 0.5,
+        right: centerX + maxLineWidth * 0.5,
+        top: lineYs[0] - fontSize * 0.58,
     };
     const letterZones = [];
     const zonePaddingX = fontSize * 0.045;
     const zonePaddingY = fontSize * 0.09;
-    for (let index = 0; index < title.length; index += 1) {
-        const letter = title[index];
-        const leftWidth = index === 0 ? 0 : sampleContext.measureText(title.slice(0, index)).width;
-        const rightWidth = sampleContext.measureText(title.slice(0, index + 1)).width;
-        const letterLeft = bounds.left + leftWidth;
-        const letterRight = bounds.left + rightWidth;
-        const letterWidth = Math.max(sampleContext.measureText(letter).width, letterRight - letterLeft);
-        letterZones.push({
-            bottom: bounds.bottom + zonePaddingY,
-            left: letterLeft - zonePaddingX,
-            right: letterLeft + letterWidth + zonePaddingX,
-            top: bounds.top - zonePaddingY,
-        });
-    }
+    titleLines.forEach((line, lineIndex) => {
+        const lineWidth = lineMetrics[lineIndex].width;
+        const lineLeft = centerX - lineWidth * 0.5;
+        const lineTop = lineYs[lineIndex] - fontSize * 0.58;
+        const lineBottom = lineYs[lineIndex] + fontSize * 0.32;
+        for (let index = 0; index < line.length; index += 1) {
+            const letter = line[index];
+            const leftWidth = index === 0 ? 0 : sampleContext.measureText(line.slice(0, index)).width;
+            const rightWidth = sampleContext.measureText(line.slice(0, index + 1)).width;
+            const letterLeft = lineLeft + leftWidth;
+            const letterRight = lineLeft + rightWidth;
+            const letterWidth = Math.max(sampleContext.measureText(letter).width, letterRight - letterLeft);
+            letterZones.push({
+                bottom: lineBottom + zonePaddingY,
+                left: letterLeft - zonePaddingX,
+                right: letterLeft + letterWidth + zonePaddingX,
+                top: lineTop - zonePaddingY,
+            });
+        }
+    });
     const imageData = sampleContext.getImageData(0, 0, viewportWidth, viewportHeight).data;
     const step = Math.max(4, Math.round(fontSize / 36));
     const particles = [];

@@ -16,7 +16,7 @@ type TitleParticle = {
   y: number;
 };
 
-const title = "Bufferage";
+const title = "Hyperhesitation";
 
 export function initShowcaseTitleParticles({ canvas, interactionTarget }: ShowcaseTitleElements) {
   const context = canvas.getContext("2d");
